@@ -1,0 +1,99 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
+import 'package:provider/provider.dart';
+import 'dart:io';
+import 'dart:convert';
+
+import 'document.dart';
+import 'highlighter.dart';
+
+class DocumentProvider extends ChangeNotifier {
+  Document doc = Document();
+
+  Future<bool> openFile(String path) async {
+    File f = await File(path);
+    await f.openRead().map(utf8.decode).transform(LineSplitter()).forEach((l) {
+      doc.insertText(l);
+      doc.insertNewLine();
+    });
+
+    doc.moveCursorToStartOfDocument();
+    touch();
+    return true;
+  }
+
+  void touch() {
+    notifyListeners();
+  }
+}
+
+class TextSpanWrapper extends TextSpan {
+  int line = 0;
+  int position = 0;
+
+  TextSpanWrapper(
+      {String? text,
+      List<InlineSpan>? children,
+      TextStyle? style,
+      GestureRecognizer? recognizer,
+      MouseCursor? mouseCursor,
+      PointerEnterEventListener? onEnter,
+      PointerExitEventListener? onExit,
+      String? semanticsLabel,
+      Locale? locale,
+      bool? spellOut,
+      this.line = 0,
+      this.position = 0})
+      : super(
+            text: text,
+            children: children,
+            style: style,
+            recognizer: recognizer,
+            mouseCursor: mouseCursor,
+            onEnter: onEnter,
+            semanticsLabel: semanticsLabel,
+            locale: locale,
+            spellOut: spellOut);
+}
+
+class ViewLine extends StatelessWidget {
+  ViewLine({this.lineNumber = 0, this.text = ''});
+
+  int lineNumber = 0;
+  String text = '';
+
+  @override
+  Widget build(BuildContext context) {
+    double gutterWidth = 80;
+    
+    DocumentProvider doc = Provider.of<DocumentProvider>(context);
+    Highlighter hl = Provider.of<Highlighter>(context);
+    List<InlineSpan> spans = hl.run(text, lineNumber, doc.doc);
+
+    return Stack(children: [
+      Padding(
+          padding: EdgeInsets.only(left: gutterWidth),
+          child: RichText(text: TextSpan(children: spans), softWrap: true)),
+      Container(
+          width: gutterWidth - 18,
+          alignment: Alignment.centerRight,
+          child: Text('$lineNumber',
+              style: TextStyle(fontSize: 16, color: Colors.black))),
+    ]);
+  }
+}
+
+class View extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    DocumentProvider doc = Provider.of<DocumentProvider>(context);
+    Document d = doc.doc;
+    return ListView.builder(
+        itemCount: d.lines.length,
+        //itemExtent: 40,
+        itemBuilder: (BuildContext context, int index) {
+          return ViewLine(lineNumber: index, text: d.lines[index]);
+        });
+  }
+}
