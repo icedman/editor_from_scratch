@@ -66,11 +66,19 @@ class Document {
 
   void moveCursorLeft({int count = 1, bool keepAnchor = false}) {
     cursor.column = cursor.column - count;
+    if (cursor.column < 0) {
+      moveCursorUp(keepAnchor: keepAnchor);
+      moveCursorToEndOfLine(keepAnchor: keepAnchor);
+    }
     _validateCursor(keepAnchor);
   }
 
   void moveCursorRight({int count = 1, bool keepAnchor = false}) {
     cursor.column = cursor.column + count;
+    if (cursor.column > lines[cursor.line].length) {
+      moveCursorDown(keepAnchor: keepAnchor);
+      moveCursorToStartOfLine(keepAnchor: keepAnchor);
+    }
     _validateCursor(keepAnchor);
   }
 
@@ -106,10 +114,8 @@ class Document {
     _validateCursor(keepAnchor);
   }
 
-
   void insertNewLine() {
     deleteSelectedText();
-    moveCursorToEndOfLine();
     insertText('\n');
   }
 
@@ -167,14 +173,14 @@ class Document {
       moveCursorToStartOfLine();
       deleteText(numberOfCharacters: lines[cursor.line].length);
     }
+    _validateCursor(false);
   }
 
   List<String> selectedLines() {
     List<String> res = <String>[];
     Cursor cur = cursor.normalized();
     if (cur.line == cur.anchorLine) {
-      String sel =
-          lines[cur.line].substring(cur.column, cur.anchorColumn);
+      String sel = lines[cur.line].substring(cur.column, cur.anchorColumn);
       res.add(sel);
       return res;
     }
@@ -205,14 +211,13 @@ class Document {
       return;
     }
 
+    cursor = cur;
     lines[cur.line] = lines[cur.line].substring(0, cur.column);
-    lines[cur.anchorLine] =
-        lines[cur.anchorLine].substring(cur.anchorColumn);
-    moveCursorDown();
+    lines[cur.anchorLine] = lines[cur.anchorLine].substring(cur.anchorColumn);
     for (int i = 0; i < res.length - 2; i++) {
-      deleteLine();
+      lines.removeAt(cur.line + 1);
     }
-    clearSelection();
+    _validateCursor(false);
   }
 
   void clearSelection() {

@@ -46,16 +46,24 @@ class _KeyInputListener extends State<KeyInputListener> {
           if (event.runtimeType.toString() == 'RawKeyDownEvent') {
             switch (event.logicalKey.keyLabel) {
               case 'Enter':
-	              d.deleteSelectedText();
+                d.deleteSelectedText();
                 d.insertNewLine();
                 break;
               case 'Backspace':
-              	d.moveCursorLeft();
-              	d.deleteText();
-               	break;
+                if (d.cursor.hasSelection()) {
+                  d.deleteSelectedText();
+                } else {
+                  d.moveCursorLeft();
+                  d.deleteText();
+                }
+                break;
               case 'Delete':
-              	d.deleteText();
-               	break;
+                if (d.cursor.hasSelection()) {
+                  d.deleteSelectedText();
+                } else {
+                  d.deleteText();
+                }
+                break;
               case 'Arrow Left':
                 d.moveCursorLeft(keepAnchor: event.isShiftPressed);
                 break;
@@ -90,8 +98,7 @@ class _KeyInputListener extends State<KeyInputListener> {
             doc.touch();
           }
 
-          if (event.runtimeType.toString() == 'RawKeyUpEvent') {
-          }
+          if (event.runtimeType.toString() == 'RawKeyUpEvent') {}
           return KeyEventResult.handled;
         });
   }

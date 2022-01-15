@@ -14,6 +14,13 @@ void futureRun(int millis, Function? func) {
 }
 
 void main() async {
+  ThemeData themeData = ThemeData(
+    fontFamily: 'FiraCode',
+    primaryColor: foreground,
+    backgroundColor: background,
+    scaffoldBackgroundColor: background,
+  );
+
   DocumentProvider doc = DocumentProvider();
   await doc.openFile('/Users/iceman/Downloads/tinywl.c');
   Document d = doc.doc;
@@ -24,5 +31,6 @@ void main() async {
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
+          theme: themeData,
           home: Scaffold(body: KeyInputListener(child: View())))));
 }

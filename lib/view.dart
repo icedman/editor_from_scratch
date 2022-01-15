@@ -63,23 +63,29 @@ class ViewLine extends StatelessWidget {
   int lineNumber = 0;
   String text = '';
 
+  int _countDigits(int n) {
+    if (n / 10 == 0) return 1;
+    return 1 + _countDigits(n ~/ 10);
+  }
+
   @override
   Widget build(BuildContext context) {
-    double gutterWidth = 80;
-    
     DocumentProvider doc = Provider.of<DocumentProvider>(context);
     Highlighter hl = Provider.of<Highlighter>(context);
     List<InlineSpan> spans = hl.run(text, lineNumber, doc.doc);
+
+    double gutterWidth = _countDigits(doc.doc.lines.length) * 16;
 
     return Stack(children: [
       Padding(
           padding: EdgeInsets.only(left: gutterWidth),
           child: RichText(text: TextSpan(children: spans), softWrap: true)),
       Container(
-          width: gutterWidth - 18,
+          width: gutterWidth - 16,
           alignment: Alignment.centerRight,
           child: Text('$lineNumber',
-              style: TextStyle(fontSize: 16, color: Colors.black))),
+              style: TextStyle(
+                  fontFamily: 'FiraCode', fontSize: 16, color: comment))),
     ]);
   }
 }

@@ -58,6 +58,17 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  fonts:
+    - family: FiraCode
+      fonts:
+        - asset: fonts/FiraCode-Regular.ttf
+    - family: SourceCodePro
+      fonts:
+        - asset: fonts/Source Code Pro for Powerline.otf
+    - family: DejaVuSansMono
+      fonts:
+        - asset: fonts/DejaVu Sans Mono for Powerline.ttf
+        
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
