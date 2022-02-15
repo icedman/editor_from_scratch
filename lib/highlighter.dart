@@ -26,8 +26,8 @@ class Highlighter {
 
   Highlighter() {
     colorMap.clear();
-    colorMap['(for|if|then) '] = function;
-    colorMap['(struct|bool|int|long|double|char|void) '] = keyword;
+    colorMap['\\b(for|if|then)\\b'] = function;
+    colorMap['\\b(include|struct|bool|int|long|double|char|void)\\b'] = keyword;
   }
 
   List<TextSpan> run(String text, int line, Document document) {

@@ -22,7 +22,7 @@ void main() async {
   );
 
   DocumentProvider doc = DocumentProvider();
-  await doc.openFile('/Users/iceman/Downloads/tinywl.c');
+  await doc.openFile('./tests/tinywl.c');
   Document d = doc.doc;
   return runApp(MultiProvider(
       providers: [

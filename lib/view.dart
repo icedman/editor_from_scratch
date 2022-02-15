@@ -63,18 +63,21 @@ class ViewLine extends StatelessWidget {
   int lineNumber = 0;
   String text = '';
 
-  int _countDigits(int n) {
-    if (n / 10 == 0) return 1;
-    return 1 + _countDigits(n ~/ 10);
-  }
-
   @override
   Widget build(BuildContext context) {
     DocumentProvider doc = Provider.of<DocumentProvider>(context);
     Highlighter hl = Provider.of<Highlighter>(context);
     List<InlineSpan> spans = hl.run(text, lineNumber, doc.doc);
 
-    double gutterWidth = _countDigits(doc.doc.lines.length) * 16;
+    final gutterStyle =
+        TextStyle(fontFamily: 'FiraCode', fontSize: 16, color: comment);
+
+    final TextPainter textPainter = TextPainter(
+        text: TextSpan(text: ' ${doc.doc.lines.length} ', style: gutterStyle),
+        maxLines: 1,
+        textDirection: TextDirection.ltr)
+      ..layout(minWidth: 0, maxWidth: double.infinity);
+    double gutterWidth = textPainter.size.width;
 
     return Stack(children: [
       Padding(
@@ -83,9 +86,7 @@ class ViewLine extends StatelessWidget {
       Container(
           width: gutterWidth - 16,
           alignment: Alignment.centerRight,
-          child: Text('$lineNumber',
-              style: TextStyle(
-                  fontFamily: 'FiraCode', fontSize: 16, color: comment))),
+          child: Text('$lineNumber', style: gutterStyle)),
     ]);
   }
 }

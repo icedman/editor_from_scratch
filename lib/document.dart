@@ -1,11 +1,25 @@
 class Cursor {
+  Cursor(
+      {this.line = 0,
+      this.column = 0,
+      this.anchorLine = 0,
+      this.anchorColumn = 0});
+
   int line = 0;
   int column = 0;
   int anchorLine = 0;
   int anchorColumn = 0;
 
+  Cursor copy() {
+    return Cursor(
+        line: line,
+        column: column,
+        anchorLine: anchorLine,
+        anchorColumn: anchorColumn);
+  }
+
   Cursor normalized() {
-    Cursor res = Cursor();
+    Cursor res = copy();
     if (line > anchorLine || (line == anchorLine && column > anchorColumn)) {
       res.line = anchorLine;
       res.column = anchorColumn;
@@ -13,10 +27,6 @@ class Cursor {
       res.anchorColumn = column;
       return res;
     }
-    res.line = line;
-    res.column = column;
-    res.anchorLine = anchorLine;
-    res.anchorColumn = anchorColumn;
     return res;
   }
 
@@ -143,12 +153,11 @@ class Document {
 
     // handle join lines
     if (cursor.column >= l.length) {
-      if (cursor.line < l.length - 1) {
-        lines[cursor.line] += lines[cursor.line + 1];
-        moveCursorDown();
-        deleteLine();
-        moveCursorToEndOfLine();
-      }
+      Cursor cur = cursor.copy();
+      lines[cursor.line] += lines[cursor.line + 1];
+      moveCursorDown();
+      deleteLine();
+      cursor = cur;
       return;
     }
 
@@ -211,10 +220,15 @@ class Document {
       return;
     }
 
+    String l = lines[cur.line];
+    String left = l.substring(0, cur.column);
+    l = lines[cur.anchorLine];
+    String right = l.substring(cur.anchorColumn);
+
     cursor = cur;
-    lines[cur.line] = lines[cur.line].substring(0, cur.column);
+    lines[cur.line] = left + right;
     lines[cur.anchorLine] = lines[cur.anchorLine].substring(cur.anchorColumn);
-    for (int i = 0; i < res.length - 2; i++) {
+    for (int i = 0; i < res.length - 1; i++) {
       lines.removeAt(cur.line + 1);
     }
     _validateCursor(false);
