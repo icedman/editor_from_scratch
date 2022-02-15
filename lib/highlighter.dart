@@ -41,7 +41,6 @@ class Highlighter {
       RegExp regExp = new RegExp(exp, caseSensitive: false, multiLine: false);
       var matches = regExp.allMatches(text);
       matches.forEach((m) {
-        //var g = m.groups([0,1]);
         if (m.start == m.end) return;
         LineDecoration d = LineDecoration();
         d.start = m.start;
@@ -52,12 +51,10 @@ class Highlighter {
     }
 
     text += ' ';
-
     String prevText = '';
     for (int i = 0; i < text.length; i++) {
       String ch = text[i];
       TextStyle style = defaultStyle.copyWith();
-
       Cursor cur = document.cursor.normalized();
 
       // decorate
@@ -93,22 +90,21 @@ class Highlighter {
       }
 
       if (res.length != 0 && !(res[res.length - 1] is WidgetSpan)) {
-        TextSpanWrapper prev = res[res.length - 1] as TextSpanWrapper;
+        TextSpan prev = res[res.length - 1] as TextSpan;
         if (prev.style == style) {
           prevText += ch;
-          res[res.length - 1] =
-              TextSpanWrapper(text: prevText, style: style, line: line);
+          res[res.length - 1] = TextSpan(text: prevText, style: style);
           continue;
         }
       }
 
-      res.add(TextSpanWrapper(text: ch, style: style, line: line, position: i));
+      res.add(TextSpan(text: ch, style: style));
       prevText = ch;
     }
 
     // fallback
     if (res.length == 0) {
-      res.add(TextSpanWrapper(text: text, style: defaultStyle));
+      res.add(TextSpan(text: text, style: defaultStyle));
     }
     return res;
   }

@@ -27,35 +27,6 @@ class DocumentProvider extends ChangeNotifier {
   }
 }
 
-class TextSpanWrapper extends TextSpan {
-  int line = 0;
-  int position = 0;
-
-  TextSpanWrapper(
-      {String? text,
-      List<InlineSpan>? children,
-      TextStyle? style,
-      GestureRecognizer? recognizer,
-      MouseCursor? mouseCursor,
-      PointerEnterEventListener? onEnter,
-      PointerExitEventListener? onExit,
-      String? semanticsLabel,
-      Locale? locale,
-      bool? spellOut,
-      this.line = 0,
-      this.position = 0})
-      : super(
-            text: text,
-            children: children,
-            style: style,
-            recognizer: recognizer,
-            mouseCursor: mouseCursor,
-            onEnter: onEnter,
-            semanticsLabel: semanticsLabel,
-            locale: locale,
-            spellOut: spellOut);
-}
-
 class ViewLine extends StatelessWidget {
   ViewLine({this.lineNumber = 0, this.text = ''});
 
@@ -70,7 +41,6 @@ class ViewLine extends StatelessWidget {
 
     final gutterStyle =
         TextStyle(fontFamily: 'FiraCode', fontSize: 16, color: comment);
-
     final TextPainter textPainter = TextPainter(
         text: TextSpan(text: ' ${doc.doc.lines.length} ', style: gutterStyle),
         maxLines: 1,
@@ -83,9 +53,9 @@ class ViewLine extends StatelessWidget {
           padding: EdgeInsets.only(left: gutterWidth),
           child: RichText(text: TextSpan(children: spans), softWrap: true)),
       Container(
-          width: gutterWidth - 16,
+          width: gutterWidth,
           alignment: Alignment.centerRight,
-          child: Text('$lineNumber', style: gutterStyle)),
+          child: Text('${lineNumber + 1} ', style: gutterStyle)),
     ]);
   }
 }
@@ -97,7 +67,6 @@ class View extends StatelessWidget {
     Document d = doc.doc;
     return ListView.builder(
         itemCount: d.lines.length,
-        //itemExtent: 40,
         itemBuilder: (BuildContext context, int index) {
           return ViewLine(lineNumber: index, text: d.lines[index]);
         });
