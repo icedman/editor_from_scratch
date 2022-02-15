@@ -92,7 +92,7 @@ class _KeyInputListener extends State<KeyInputListener> {
                 if (event.logicalKey.keyLabel.length == 1) {
                   d.insertText(event.logicalKey.keyLabel);
                 }
-                print(event.logicalKey.keyLabel);
+                // print(event.logicalKey.keyLabel);
                 break;
             }
             doc.touch();

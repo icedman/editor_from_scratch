@@ -60,10 +60,6 @@ class Highlighter {
 
       Cursor cur = document.cursor.normalized();
 
-      bool withinSelection = false;
-      bool isCaret =
-          (line == document.cursor.line && i == document.cursor.column);
-
       // decorate
       decors.forEach((d) {
         if (i >= d.start && i <= d.end) {
@@ -71,20 +67,19 @@ class Highlighter {
         }
       });
 
+      // is within selection
       if (cur.hasSelection()) {
-        withinSelection = true;
         if (line < cur.line ||
             (line == cur.line && i < cur.column) ||
             line > cur.anchorLine ||
             (line == cur.anchorLine && i + 1 > cur.anchorColumn)) {
-          withinSelection = false;
+        } else {
+          style = style.copyWith(backgroundColor: selection.withOpacity(0.75));
         }
       }
 
-      if (withinSelection) {
-        style = style.copyWith(backgroundColor: selection.withOpacity(0.75));
-      }
-      if (isCaret) {
+      // is within caret
+      if ((line == document.cursor.line && i == document.cursor.column)) {
         res.add(WidgetSpan(
             alignment: ui.PlaceholderAlignment.baseline,
             baseline: TextBaseline.alphabetic,
