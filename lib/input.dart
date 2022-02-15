@@ -45,6 +45,20 @@ class _KeyInputListener extends State<KeyInputListener> {
         onKey: (FocusNode node, RawKeyEvent event) {
           if (event.runtimeType.toString() == 'RawKeyDownEvent') {
             switch (event.logicalKey.keyLabel) {
+              case 'Home':
+                if (event.isControlPressed) {
+                  d.moveCursorToStartOfDocument();
+                } else {
+                  d.moveCursorToStartOfLine();
+                }
+                break;
+              case 'End':
+                if (event.isControlPressed) {
+                  d.moveCursorToEndOfDocument();
+                } else {
+                  d.moveCursorToEndOfLine();
+                }
+                break;
               case 'Enter':
                 d.deleteSelectedText();
                 d.insertNewLine();
@@ -85,6 +99,10 @@ class _KeyInputListener extends State<KeyInputListener> {
                           k + 32 <= LogicalKeyboardKey.keyZ.keyId)) {
                     String ch = String.fromCharCode(
                         97 + k - LogicalKeyboardKey.keyA.keyId);
+                    if (event.isControlPressed) {
+                      d.command('ctrl+$ch');
+                      break;
+                    }
                     d.insertText(ch);
                     break;
                   }
@@ -92,12 +110,11 @@ class _KeyInputListener extends State<KeyInputListener> {
                 if (event.logicalKey.keyLabel.length == 1) {
                   d.insertText(event.logicalKey.keyLabel);
                 }
-                // print(event.logicalKey.keyLabel);
+                print(event.logicalKey.keyLabel);
                 break;
             }
             doc.touch();
           }
-
           if (event.runtimeType.toString() == 'RawKeyUpEvent') {}
           return KeyEventResult.handled;
         });

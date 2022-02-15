@@ -39,6 +39,8 @@ class Document {
   List<String> lines = <String>[''];
   Cursor cursor = Cursor();
 
+  String clipboardText = '';
+
   void _validateCursor(bool keepAnchor) {
     if (cursor.line >= lines.length) {
       cursor.line = lines.length - 1;
@@ -221,5 +223,20 @@ class Document {
   void clearSelection() {
     cursor.anchorLine = cursor.line;
     cursor.anchorColumn = cursor.column;
+  }
+
+  void command(String cmd) {
+    switch (cmd) {
+      case 'ctrl+c':
+        clipboardText = selectedText();
+        break;
+      case 'ctrl+x':
+        clipboardText = selectedText();
+        deleteSelectedText();
+        break;
+      case 'ctrl+v':
+        insertText(clipboardText);
+        break;
+    }
   }
 }
