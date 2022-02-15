@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:collection';
+import 'dart:ui' as ui;
 
 import 'document.dart';
 import 'view.dart';
@@ -30,10 +31,10 @@ class Highlighter {
     colorMap['\\b(include|struct|bool|int|long|double|char|void)\\b'] = keyword;
   }
 
-  List<TextSpan> run(String text, int line, Document document) {
+  List<InlineSpan> run(String text, int line, Document document) {
     TextStyle defaultStyle =
         TextStyle(fontFamily: 'FiraCode', fontSize: 18, color: foreground);
-    List<TextSpan> res = <TextSpan>[];
+    List<InlineSpan> res = <InlineSpan>[];
     List<LineDecoration> decors = <LineDecoration>[];
 
     for (var exp in colorMap.keys) {
@@ -84,13 +85,19 @@ class Highlighter {
         style = style.copyWith(backgroundColor: selection.withOpacity(0.75));
       }
       if (isCaret) {
-        style = style.copyWith(
-            backgroundColor: function.withOpacity(0.5),
-            decoration: TextDecoration.underline,
-            decorationStyle: TextDecorationStyle.solid);
+        res.add(WidgetSpan(
+            alignment: ui.PlaceholderAlignment.baseline,
+            baseline: TextBaseline.alphabetic,
+            child: Container(
+                decoration: BoxDecoration(
+                    border: Border(
+                        left: BorderSide(
+                            width: 1.2, color: style.color ?? Colors.yellow))),
+                child: Text(ch, style: style))));
+        continue;
       }
 
-      if (res.length != 0) {
+      if (res.length != 0 && !(res[res.length - 1] is WidgetSpan)) {
         TextSpanWrapper prev = res[res.length - 1] as TextSpanWrapper;
         if (prev.style == style) {
           prevText += ch;

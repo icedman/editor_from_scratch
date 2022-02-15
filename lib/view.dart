@@ -17,7 +17,6 @@ class DocumentProvider extends ChangeNotifier {
       doc.insertText(l);
       doc.insertNewLine();
     });
-
     doc.moveCursorToStartOfDocument();
     touch();
     return true;

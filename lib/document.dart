@@ -39,20 +39,6 @@ class Document {
   List<String> lines = <String>[''];
   Cursor cursor = Cursor();
 
-  int hash = 0;
-
-  void output() {
-    print('\n');
-    print(
-        'cursor at: ${cursor.line + 1} ${cursor.column + 1} anchor: ${cursor.anchorLine + 1} ${cursor.anchorColumn + 1}');
-    int i = 1;
-    for (var l in lines) {
-      print('${i++} $l');
-    }
-    print('selected lines: ${selectedLines()}');
-    print(selectedText());
-  }
-
   void _validateCursor(bool keepAnchor) {
     if (cursor.line >= lines.length) {
       cursor.line = lines.length - 1;
@@ -66,8 +52,6 @@ class Document {
       cursor.anchorLine = cursor.line;
       cursor.anchorColumn = cursor.column;
     }
-
-    hash++;
   }
 
   void moveCursor(int line, int column, {bool keepAnchor = false}) {
