@@ -7,12 +7,6 @@ import 'view.dart';
 import 'input.dart';
 import 'highlighter.dart';
 
-void futureRun(int millis, Function? func) {
-  Timer(Duration(milliseconds: millis), () {
-    func?.call();
-  });
-}
-
 void main() async {
   ThemeData themeData = ThemeData(
     fontFamily: 'FiraCode',
@@ -22,7 +16,7 @@ void main() async {
   );
 
   DocumentProvider doc = DocumentProvider();
-  await doc.openFile('./tests/tinywl.c');
+  await doc.openFile('./tests/sqlite3.c');
   Document d = doc.doc;
   return runApp(MultiProvider(
       providers: [
