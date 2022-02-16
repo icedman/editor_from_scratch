@@ -6,6 +6,18 @@ import 'dart:ui' as ui;
 import 'document.dart';
 import 'view.dart';
 
+double fontSize = 18;
+double gutterFontSize = 16;
+
+Size getTextExtents(String text, TextStyle style) {
+  final TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: TextDirection.ltr)
+    ..layout(minWidth: 0, maxWidth: double.infinity);
+  return textPainter.size;
+}
+
 Color foreground = Color(0xfff8f8f2);
 Color background = Color(0xff272822);
 Color comment = Color(0xff88846f);
@@ -23,6 +35,12 @@ class LineDecoration {
   bool italic = false;
 }
 
+class CustomWidgetSpan extends WidgetSpan {
+  int line = 0;
+  CustomWidgetSpan({required Widget child, this.line = 0})
+      : super(child: child);
+}
+
 class Highlighter {
   HashMap<String, Color> colorMap = HashMap<String, Color>();
 
@@ -30,7 +48,7 @@ class Highlighter {
     colorMap.clear();
     colorMap['\\b(class|struct)\\b'] = function;
     colorMap['("|<){1}\\b(.*)\\b("|>){1}'] = string;
-    // copied from flutter_highlight
+    // keywords and meta-keywords list is copied from flutter_highlight
     colorMap[
             '\\b(if|else|elif|endif|define|undef|warning|error|line|pragma|_Pragma|ifdef|ifndef|include)\\b'] =
         function;
@@ -40,8 +58,8 @@ class Highlighter {
   }
 
   List<InlineSpan> run(String text, int line, Document document) {
-    TextStyle defaultStyle =
-        TextStyle(fontFamily: 'FiraCode', fontSize: 18, color: foreground);
+    TextStyle defaultStyle = TextStyle(
+        fontFamily: 'FiraCode', fontSize: fontSize, color: foreground);
     List<InlineSpan> res = <InlineSpan>[];
     List<LineDecoration> decors = <LineDecoration>[];
 
@@ -93,7 +111,7 @@ class Highlighter {
                     border: Border(
                         left: BorderSide(
                             width: 1.2, color: style.color ?? Colors.yellow))),
-                child: Text(ch, style: style))));
+                child: Text(ch, style: style.copyWith(letterSpacing: -1.5)))));
         continue;
       }
 
@@ -101,19 +119,23 @@ class Highlighter {
         TextSpan prev = res[res.length - 1] as TextSpan;
         if (prev.style == style) {
           prevText += ch;
-          res[res.length - 1] = TextSpan(text: prevText, style: style);
+          res[res.length - 1] = TextSpan(
+              text: prevText,
+              style: style,
+              mouseCursor: MaterialStateMouseCursor.textable);
           continue;
         }
       }
 
-      res.add(TextSpan(text: ch, style: style));
+      res.add(TextSpan(
+          text: ch,
+          style: style,
+          mouseCursor: MaterialStateMouseCursor.textable));
       prevText = ch;
     }
 
-    // fallback
-    if (res.length == 0) {
-      res.add(TextSpan(text: text, style: defaultStyle));
-    }
+    res.add(
+        CustomWidgetSpan(child: Container(height: 1, width: 8), line: line));
     return res;
   }
 }

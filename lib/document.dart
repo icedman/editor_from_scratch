@@ -38,7 +38,6 @@ class Cursor {
 class Document {
   List<String> lines = <String>[''];
   Cursor cursor = Cursor();
-
   String clipboardText = '';
 
   void _validateCursor(bool keepAnchor) {
@@ -49,6 +48,7 @@ class Document {
     if (cursor.column > lines[cursor.line].length) {
       cursor.column = lines[cursor.line].length;
     }
+    if (cursor.column == -1) cursor.column = lines[cursor.line].length;
     if (cursor.column < 0) cursor.column = 0;
     if (!keepAnchor) {
       cursor.anchorLine = cursor.line;
@@ -57,6 +57,8 @@ class Document {
   }
 
   void moveCursor(int line, int column, {bool keepAnchor = false}) {
+    cursor.line = line;
+    cursor.column = column;
     _validateCursor(keepAnchor);
   }
 

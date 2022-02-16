@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -40,14 +39,10 @@ class ViewLine extends StatelessWidget {
     Highlighter hl = Provider.of<Highlighter>(context);
     List<InlineSpan> spans = hl.run(text, lineNumber, doc.doc);
 
-    final gutterStyle =
-        TextStyle(fontFamily: 'FiraCode', fontSize: 16, color: comment);
-    final TextPainter textPainter = TextPainter(
-        text: TextSpan(text: ' ${doc.doc.lines.length} ', style: gutterStyle),
-        maxLines: 1,
-        textDirection: TextDirection.ltr)
-      ..layout(minWidth: 0, maxWidth: double.infinity);
-    double gutterWidth = textPainter.size.width;
+    final gutterStyle = TextStyle(
+        fontFamily: 'FiraCode', fontSize: gutterFontSize, color: comment);
+    double gutterWidth =
+        getTextExtents(' ${doc.doc.lines.length} ', gutterStyle).width;
 
     return Stack(children: [
       Padding(
@@ -61,15 +56,34 @@ class ViewLine extends StatelessWidget {
   }
 }
 
-class View extends StatelessWidget {
+class View extends StatefulWidget {
+  @override
+  _View createState() => _View();
+}
+
+class _View extends State<View> {
+  late ScrollController scroller;
+
+  @override
+  void initState() {
+    scroller = ScrollController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    scroller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     DocumentProvider doc = Provider.of<DocumentProvider>(context);
-    Document d = doc.doc;
     return ListView.builder(
-        itemCount: d.lines.length,
+        controller: scroller,
+        itemCount: doc.doc.lines.length,
         itemBuilder: (BuildContext context, int index) {
-          return ViewLine(lineNumber: index, text: d.lines[index]);
+          return ViewLine(lineNumber: index, text: doc.doc.lines[index]);
         });
   }
 }
