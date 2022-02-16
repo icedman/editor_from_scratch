@@ -12,14 +12,9 @@ class DocumentProvider extends ChangeNotifier {
   Document doc = Document();
 
   Future<bool> openFile(String path) async {
-    File f = await File(path);
-    await f.openRead().map(utf8.decode).transform(LineSplitter()).forEach((l) {
-      doc.insertText(l);
-      doc.insertNewLine();
-    });
-    doc.moveCursorToStartOfDocument();
+    bool res = await doc.openFile(path);
     touch();
-    return true;
+    return res;
   }
 
   void touch() {
@@ -57,6 +52,9 @@ class ViewLine extends StatelessWidget {
 }
 
 class View extends StatefulWidget {
+  View({Key? key, String this.path = ''}) : super(key: key);
+  String path = '';
+
   @override
   _View createState() => _View();
 }

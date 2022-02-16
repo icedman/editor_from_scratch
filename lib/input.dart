@@ -13,16 +13,16 @@ Offset screenToCursor(RenderObject? obj, Offset pos) {
 
   RenderParagraph? targetPar;
   int line = -1;
-  int column = -1;
 
-  for (final p in pars) {
-    TextSpan t = p.text as TextSpan;
-    Rect bounds = const Offset(0, 0) & p.size;
-    Offset offsetForCaret = p.localToGlobal(
-        p.getOffsetForCaret(const TextPosition(offset: 0), bounds));
-    Rect _bounds = offsetForCaret & Size(p.size.width * 10, p.size.height);
-    if (_bounds.inflate(2).contains(pos)) {
-      targetPar = p;
+  for (final par in pars) {
+    TextSpan t = par.text as TextSpan;
+    Rect bounds = const Offset(0, 0) & par.size;
+    Offset offsetForCaret = par.localToGlobal(
+        par.getOffsetForCaret(const TextPosition(offset: 0), bounds));
+    Rect parBounds =
+        offsetForCaret & Size(par.size.width * 10, par.size.height);
+    if (parBounds.inflate(2).contains(pos)) {
+      targetPar = par;
       break;
     }
   }
@@ -30,37 +30,27 @@ Offset screenToCursor(RenderObject? obj, Offset pos) {
   if (targetPar == null) return Offset(-1, -1);
 
   Rect bounds = const Offset(0, 0) & targetPar.size;
-  TextSpan? t = targetPar.text as TextSpan;
-  List<InlineSpan> children = t.children ?? <InlineSpan>[];
-
-  double fw = 0;
-  double fh = 0;
-
+  List<InlineSpan> children =
+      (targetPar.text as TextSpan).children ?? <InlineSpan>[];
+  Size fontCharSize = Size(0, 0);
   int textOffset = 0;
   bool found = false;
-  for (var p in children) {
-    if (found && line != -1) break;
-    if (p is CustomWidgetSpan) {
-      line = (p as CustomWidgetSpan).line;
-      continue;
-    }
-    if (!(p is TextSpan) || found) {
+  for (var span in children) {
+    if (found) break;
+    if (!(span is TextSpan)) {
       continue;
     }
 
-    if (fw == 0) {
-      Size size = getTextExtents(' ', p.style ?? TextStyle());
-      fw = size.width;
-      fh = size.height;
+    if (fontCharSize.width == 0) {
+      fontCharSize = getTextExtents(' ', span.style ?? TextStyle());
     }
 
-    String txt = (p as TextSpan).text ?? '';
+    String txt = (span as TextSpan).text ?? '';
     for (int i = 0; i < txt.length; i++) {
       Offset offsetForCaret = targetPar.localToGlobal(targetPar
           .getOffsetForCaret(TextPosition(offset: textOffset), bounds));
-      Rect _bounds = offsetForCaret & Size(fw, fh);
-      if (_bounds.inflate(2).contains(Offset(pos.dx + 1, pos.dy + 1))) {
-        column = textOffset;
+      Rect charBounds = offsetForCaret & fontCharSize;
+      if (charBounds.inflate(2).contains(Offset(pos.dx + 1, pos.dy + 1))) {
         found = true;
         break;
       }
@@ -68,11 +58,11 @@ Offset screenToCursor(RenderObject? obj, Offset pos) {
     }
   }
 
-  if (found) {
-    return Offset(textOffset.toDouble(), line.toDouble());
+  if (children.length > 0 && children.last is CustomWidgetSpan) {
+    line = (children.last as CustomWidgetSpan).line;
   }
 
-  return Offset(column.toDouble(), line.toDouble());
+  return Offset(textOffset.toDouble(), line.toDouble());
 }
 
 void findRenderParagraphs(RenderObject? obj, List<RenderParagraph> res) {
@@ -86,10 +76,9 @@ void findRenderParagraphs(RenderObject? obj, List<RenderParagraph> res) {
 }
 
 class InputListener extends StatefulWidget {
-  InputListener({required Widget this.child});
-
   late Widget child;
 
+  InputListener({required Widget this.child});
   @override
   _InputListener createState() => _InputListener();
 }
@@ -117,7 +106,6 @@ class _InputListener extends State<InputListener> {
 
     DocumentProvider doc = Provider.of<DocumentProvider>(context);
     Document d = doc.doc;
-
     return GestureDetector(
         child: Focus(
             child: widget.child,
@@ -139,6 +127,9 @@ class _InputListener extends State<InputListener> {
                     } else {
                       d.moveCursorToEndOfLine();
                     }
+                    break;
+                  case 'Tab':
+                    d.insertText('    ');
                     break;
                   case 'Enter':
                     d.deleteSelectedText();
@@ -191,11 +182,12 @@ class _InputListener extends State<InputListener> {
                     if (event.logicalKey.keyLabel.length == 1) {
                       d.insertText(event.logicalKey.keyLabel);
                     }
-                    print(event.logicalKey.keyLabel);
+                    // print(event.logicalKey.keyLabel);
                     break;
                 }
                 doc.touch();
               }
+              if (event.runtimeType.toString() == 'RawKeyUpEvent') {}
               return KeyEventResult.handled;
             }),
         onTapDown: (TapDownDetails details) {
@@ -207,6 +199,7 @@ class _InputListener extends State<InputListener> {
         onPanUpdate: (DragUpdateDetails details) {
           Offset o = screenToCursor(
               context.findRenderObject(), details.globalPosition);
+          if (o.dx == -1 || o.dy == -1) return;
           d.moveCursor(o.dy.toInt(), o.dx.toInt(), keepAnchor: true);
           doc.touch();
         });

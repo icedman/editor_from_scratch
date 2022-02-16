@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:convert';
+
 class Cursor {
   Cursor(
       {this.line = 0,
@@ -36,9 +39,32 @@ class Cursor {
 }
 
 class Document {
+  String docPath = '';
   List<String> lines = <String>[''];
   Cursor cursor = Cursor();
   String clipboardText = '';
+
+  Future<bool> openFile(String path) async {
+    lines = <String>[''];
+    docPath = path;
+    File f = await File(docPath);
+    await f.openRead().map(utf8.decode).transform(LineSplitter()).forEach((l) {
+      insertText(l);
+      insertNewLine();
+    });
+    moveCursorToStartOfDocument();
+    return true;
+  }
+
+  Future<bool> saveFile({String? path}) async {
+    File f = await File(path ?? docPath);
+    String content = '';
+    lines.forEach((l) {
+      content += l + '\n';
+    });
+    f.writeAsString(content);
+    return true;
+  }
 
   void _validateCursor(bool keepAnchor) {
     if (cursor.line >= lines.length) {
@@ -238,6 +264,9 @@ class Document {
         break;
       case 'ctrl+v':
         insertText(clipboardText);
+        break;
+      case 'ctrl+s':
+        saveFile();
         break;
     }
   }

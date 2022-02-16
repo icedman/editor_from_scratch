@@ -42,9 +42,5 @@ void main() async {
   return runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: themeData,
-      home: Scaffold(
-          body: Row(children: [
-        Expanded(child: Editor(path: './tests/tinywl.c')),
-        Expanded(child: Editor(path: './tests/tinywl.c'))
-      ]))));
+      home: Scaffold(body: Editor(path: './tests/tinywl.c'))));
 }
