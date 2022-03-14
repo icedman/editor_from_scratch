@@ -9,3 +9,5 @@ https://medium.com/@marvinsanchez_43796/build-a-text-editor-with-flutter-ui-unde
 This project is for article purposes onl - for tutorial or for proof of concept. A more complete editor is flutter_editor:
 
 https://github.com/icedman/flutter_editor
+
+![screenshot](https://raw.githubusercontent.com/icedman/flutter_editor/main/screenshots/Screenshot%20from%202022-03-09%2018-11-43.png)
