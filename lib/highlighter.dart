@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'dart:collection';
 import 'dart:ui' as ui;
 
 import 'document.dart';
-import 'view.dart';
 
 double fontSize = 18;
 double gutterFontSize = 16;
@@ -18,12 +16,12 @@ Size getTextExtents(String text, TextStyle style) {
   return textPainter.size;
 }
 
-Color foreground = Color(0xfff8f8f2);
-Color background = Color(0xff272822);
-Color comment = Color(0xff88846f);
-Color selection = Color(0xff44475a);
-Color function = Color(0xff50fa7b);
-Color keyword = Color(0xffff79c6);
+Color foreground = const Color(0xfff8f8f2);
+Color background = const Color(0xff272822);
+Color comment = const Color(0xff88846f);
+Color selection = const Color(0xff44475a);
+Color function = const Color(0xff50fa7b);
+Color keyword = const Color(0xffff79c6);
 Color string = Colors.yellow;
 
 class LineDecoration {
@@ -36,8 +34,8 @@ class LineDecoration {
 }
 
 class CustomWidgetSpan extends WidgetSpan {
-  int line = 0;
-  CustomWidgetSpan({required Widget child, this.line = 0})
+  final int line;
+  const CustomWidgetSpan({required Widget child, this.line = 0})
       : super(child: child);
 }
 
@@ -64,16 +62,16 @@ class Highlighter {
     List<LineDecoration> decors = <LineDecoration>[];
 
     for (var exp in colorMap.keys) {
-      RegExp regExp = new RegExp(exp, caseSensitive: false, multiLine: false);
+      RegExp regExp = RegExp(exp, caseSensitive: false, multiLine: false);
       var matches = regExp.allMatches(text);
-      matches.forEach((m) {
-        if (m.start == m.end) return;
+      for (var m in matches) {
+        if (m.start == m.end) continue;
         LineDecoration d = LineDecoration();
         d.start = m.start;
         d.end = m.end - 1;
         d.color = colorMap[exp] ?? foreground;
         decors.add(d);
-      });
+      }
     }
 
     text += ' ';
@@ -84,11 +82,11 @@ class Highlighter {
       Cursor cur = document.cursor.normalized();
 
       // decorate
-      decors.forEach((d) {
+      for (var d in decors) {
         if (i >= d.start && i <= d.end) {
           style = style.copyWith(color: d.color);
         }
-      });
+      }
 
       // is within selection
       if (cur.hasSelection()) {
@@ -115,7 +113,7 @@ class Highlighter {
         continue;
       }
 
-      if (res.length != 0 && !(res[res.length - 1] is WidgetSpan)) {
+      if (res.isNotEmpty && res[res.length - 1] is! WidgetSpan) {
         TextSpan prev = res[res.length - 1] as TextSpan;
         if (prev.style == style) {
           prevText += ch;
@@ -134,8 +132,8 @@ class Highlighter {
       prevText = ch;
     }
 
-    res.add(
-        CustomWidgetSpan(child: Container(height: 1, width: 8), line: line));
+    res.add(CustomWidgetSpan(
+        child: const SizedBox(height: 1, width: 8), line: line));
     return res;
   }
 }

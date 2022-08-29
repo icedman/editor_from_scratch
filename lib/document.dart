@@ -47,8 +47,8 @@ class Document {
   Future<bool> openFile(String path) async {
     lines = <String>[''];
     docPath = path;
-    File f = await File(docPath);
-    await f.openRead().map(utf8.decode).transform(LineSplitter()).forEach((l) {
+    File f = File(docPath);
+    await f.openRead().map(utf8.decode).transform(const LineSplitter()).forEach((l) {
       insertText(l);
       insertNewLine();
     });
@@ -57,11 +57,11 @@ class Document {
   }
 
   Future<bool> saveFile({String? path}) async {
-    File f = await File(path ?? docPath);
+    File f = File(path ?? docPath);
     String content = '';
-    lines.forEach((l) {
+    for (var l in lines) {
       content += l + '\n';
-    });
+    }
     f.writeAsString(content);
     return true;
   }
@@ -181,7 +181,7 @@ class Document {
     cursor = cur;
 
     // handle erase entire line
-    if (lines.length > 1 && (left + right).length == 0) {
+    if (lines.length > 1 && (left + right).isEmpty) {
       lines.removeAt(cur.line);
       moveCursorUp();
       moveCursorToStartOfLine();

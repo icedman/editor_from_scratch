@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
-import 'dart:convert';
 
 import 'document.dart';
 import 'highlighter.dart';
@@ -23,10 +19,10 @@ class DocumentProvider extends ChangeNotifier {
 }
 
 class ViewLine extends StatelessWidget {
-  ViewLine({this.lineNumber = 0, this.text = ''});
+  const ViewLine({this.lineNumber = 0, this.text = '', super.key});
 
-  int lineNumber = 0;
-  String text = '';
+  final int lineNumber;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +48,8 @@ class ViewLine extends StatelessWidget {
 }
 
 class View extends StatefulWidget {
-  View({Key? key, String this.path = ''}) : super(key: key);
-  String path = '';
+  const View({super.key, this.path = ''});
+  final String path;
 
   @override
   _View createState() => _View();

@@ -1,4 +1,4 @@
-import 'document.dart';
+import 'package:editor_from_scratch/document.dart';
 
 Document docTestRun() {
   Document d = Document();
@@ -22,10 +22,10 @@ Document docTestRun() {
   d.moveCursorRight(count: 4);
   d.moveCursorDown(count: 2, keepAnchor: true);
   d.moveCursorRight(count: 4, keepAnchor: true);
-  d.output();
+  // d.output();
   //d.moveCursorToEndOfLine(keepAnchor: true);
   d.deleteSelectedText();
-  d.output();
+  // d.output();
   //d.deleteLine();
   //d.output();
   //d.moveCursorRight(count: 2);
