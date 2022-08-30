@@ -15,7 +15,6 @@ Offset screenToCursor(RenderObject? obj, Offset pos) {
   int line = -1;
 
   for (final par in pars) {
-    TextSpan t = par.text as TextSpan;
     Rect bounds = const Offset(0, 0) & par.size;
     Offset offsetForCaret = par.localToGlobal(
         par.getOffsetForCaret(const TextPosition(offset: 0), bounds));
@@ -27,25 +26,25 @@ Offset screenToCursor(RenderObject? obj, Offset pos) {
     }
   }
 
-  if (targetPar == null) return Offset(-1, -1);
+  if (targetPar == null) return const Offset(-1, -1);
 
   Rect bounds = const Offset(0, 0) & targetPar.size;
   List<InlineSpan> children =
       (targetPar.text as TextSpan).children ?? <InlineSpan>[];
-  Size fontCharSize = Size(0, 0);
+  Size fontCharSize = const Size(0, 0);
   int textOffset = 0;
   bool found = false;
   for (var span in children) {
     if (found) break;
-    if (!(span is TextSpan)) {
+    if (span is! TextSpan) {
       continue;
     }
 
     if (fontCharSize.width == 0) {
-      fontCharSize = getTextExtents(' ', span.style ?? TextStyle());
+      fontCharSize = getTextExtents(' ', span.style ?? const TextStyle());
     }
 
-    String txt = (span as TextSpan).text ?? '';
+    String txt = (span).text ?? '';
     for (int i = 0; i < txt.length; i++) {
       Offset offsetForCaret = targetPar.localToGlobal(targetPar
           .getOffsetForCaret(TextPosition(offset: textOffset), bounds));
@@ -58,7 +57,7 @@ Offset screenToCursor(RenderObject? obj, Offset pos) {
     }
   }
 
-  if (children.length > 0 && children.last is CustomWidgetSpan) {
+  if (children.isNotEmpty && children.last is CustomWidgetSpan) {
     line = (children.last as CustomWidgetSpan).line;
   }
 
@@ -76,9 +75,9 @@ void findRenderParagraphs(RenderObject? obj, List<RenderParagraph> res) {
 }
 
 class InputListener extends StatefulWidget {
-  late Widget child;
+  final Widget child;
 
-  InputListener({required Widget this.child});
+  const InputListener({required this.child, super.key});
   @override
   _InputListener createState() => _InputListener();
 }

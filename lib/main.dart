@@ -1,15 +1,13 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'document.dart';
 import 'view.dart';
 import 'input.dart';
 import 'highlighter.dart';
 
 class Editor extends StatefulWidget {
-  Editor({Key? key, String this.path = ''}) : super(key: key);
-  String path = '';
+  const Editor({super.key, this.path = ''});
+  final String path;
   @override
   _Editor createState() => _Editor();
 }
@@ -28,7 +26,7 @@ class _Editor extends State<Editor> {
     return MultiProvider(providers: [
       ChangeNotifierProvider(create: (context) => doc),
       Provider(create: (context) => Highlighter())
-    ], child: InputListener(child: View()));
+    ], child: const InputListener(child: View()));
   }
 }
 
@@ -42,5 +40,5 @@ void main() async {
   return runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: themeData,
-      home: Scaffold(body: Editor(path: './tests/tinywl.c'))));
+      home: const Scaffold(body: Editor(path: './tests/tinywl.c'))));
 }
